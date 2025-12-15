@@ -152,7 +152,7 @@ const LandingPage: React.FC = () => {
       </div>
 
       <div className="absolute bottom-6 text-center text-gray-400 text-sm">
-        ATLAS Emergency Response System v3.0 • Secure Connection
+        ATLAS Emergency Response System v4.0 • Secure Connection
       </div>
     </div>
   );

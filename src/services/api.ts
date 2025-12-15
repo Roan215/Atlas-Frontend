@@ -119,3 +119,24 @@ export const searchInsuranceByName = async (name: string) => {
 };
 
 // ... existing functions
+
+export const fetchResources = async () => {
+  const response = await api.get("/resources");
+  return response.data;
+};
+
+export const addItemToBill = async (
+  patientId: number,
+  resourceId: number,
+  quantity: number
+) => {
+  const response = await api.post(`/billing/${patientId}/add-item`, null, {
+    params: { resourceId, quantity },
+  });
+  return response.data;
+};
+
+export const removeItemFromBill = async (itemId: number) => {
+  const response = await api.delete(`/billing/items/${itemId}`);
+  return response.data;
+};

@@ -18,30 +18,26 @@ const TriageModal: React.FC<TriageModalProps> = ({
   currentName,
   currentColor,
 }) => {
-  // State for the "Resurrection" Confirmation Flow
-  // 0 = Normal, 1 = "Are you sure?", 2 = "Really really sure?"
   const [confirmStep, setConfirmStep] = useState(0);
   const [pendingColor, setPendingColor] = useState<TriageColor | null>(null);
 
   if (!isOpen) return null;
 
   const handleColorClick = (newColor: TriageColor) => {
-    // TRIGGER: If changing FROM Black TO anything else
     if (currentColor === "BLACK" && newColor !== "BLACK") {
       setPendingColor(newColor);
-      setConfirmStep(1); // Start the questioning
+      setConfirmStep(1);
     } else {
-      // Normal update for everyone else
       onUpdate(newColor);
     }
   };
 
   const handleConfirmNext = () => {
     if (confirmStep === 1) {
-      setConfirmStep(2); // Move to "Really really sure?"
+      setConfirmStep(2);
     } else if (confirmStep === 2 && pendingColor) {
-      onUpdate(pendingColor); // Actually update
-      setConfirmStep(0); // Reset
+      onUpdate(pendingColor);
+      setConfirmStep(0);
     }
   };
 
@@ -50,7 +46,6 @@ const TriageModal: React.FC<TriageModalProps> = ({
     setPendingColor(null);
   };
 
-  // --- RENDER CONTENT BASED ON STEP ---
   const renderContent = () => {
     // STEP 1: "Are you sure?"
     if (confirmStep === 1) {
@@ -69,13 +64,14 @@ const TriageModal: React.FC<TriageModalProps> = ({
           <div className="flex gap-3 justify-center">
             <button
               onClick={handleCancel}
-              className="px-6 py-3 rounded-xl border border-gray-200 dark:border-neutral-700 font-bold hover:bg-gray-50 dark:hover:bg-neutral-800"
+              // FIX: Added 'text-gray-700 dark:text-white' below
+              className="px-6 py-3 rounded-xl border border-gray-200 dark:border-neutral-700 font-bold text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
             >
               No, Cancel
             </button>
             <button
               onClick={handleConfirmNext}
-              className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-lg shadow-amber-500/20"
+              className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-lg shadow-amber-500/20 transition-colors"
             >
               Yes, I'm Sure
             </button>
@@ -102,13 +98,14 @@ const TriageModal: React.FC<TriageModalProps> = ({
           <div className="flex gap-3 justify-center">
             <button
               onClick={handleCancel}
-              className="px-6 py-3 rounded-xl border border-gray-200 dark:border-neutral-700 font-bold hover:bg-gray-50 dark:hover:bg-neutral-800"
+              // FIX: Added 'text-gray-700 dark:text-white' below
+              className="px-6 py-3 rounded-xl border border-gray-200 dark:border-neutral-700 font-bold text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
             >
               Wait, Go Back
             </button>
             <button
               onClick={handleConfirmNext}
-              className="px-6 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-lg shadow-rose-600/30"
+              className="px-6 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-lg shadow-rose-600/30 transition-colors"
             >
               Yes, Confirm Update
             </button>

@@ -41,3 +41,30 @@ export interface Bill {
   patientPayable: number;
   status: "PENDING" | "PAID" | "INSURANCE_PENDING";
 }
+
+// ... existing types ...
+
+// 1. ADD THIS NEW INTERFACE
+export interface BillItem {
+  id: number;
+  quantity: number;
+  totalPrice: number;
+  resource: {
+    id: number;
+    name: string;
+    unitPrice: number;
+  };
+}
+
+// 2. UPDATE THE BILL INTERFACE
+export interface Bill {
+  id: number;
+  patient: Patient;
+  totalAmount: number;
+  insuranceCoverage: number;
+  patientPayable: number;
+  status: "PENDING" | "PAID" | "INSURANCE_PENDING";
+
+  // --- ADD THIS MISSING ARRAY ---
+  items: BillItem[];
+}
