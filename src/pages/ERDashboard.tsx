@@ -73,7 +73,12 @@ const ERDashboard: React.FC = () => {
         fetchTriageFeed(id),
         fetchHospitalById(id),
       ]);
-      setTriageList(tags);
+
+      // --- FIX: SORT BY NEWEST FIRST (LIFO) ---
+      // We compare IDs (assuming higher ID = newer) to put the latest at the top.
+      const sortedTags = tags.sort((a, b) => b.id - a.id);
+
+      setTriageList(sortedTags);
       setHospital(hospData);
       setLoading(false);
     } catch (error) {

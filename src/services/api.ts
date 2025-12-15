@@ -55,13 +55,17 @@ export const fetchTriageFeed = async (
   return response.data;
 };
 
-// 5. Update Patient Details (Used by the Modal)
-export const updatePatientDetails = async (
-  patientId: number,
-  data: Partial<Patient>
-) => {
-  // Ensure the ID is part of the URL, not just the body
-  const response = await api.put(`/patients/${patientId}`, data);
+// Find the updatePatientDetails function and replace it with this:
+
+export const updatePatientDetails = async (id: number, data: any) => {
+  // We extract the insuranceNumber from the data object
+  const policyNum = data.insuranceNumber || "";
+
+  // We send it as a Query Parameter (?policyNumber=...)
+  const response = await api.put(`/patients/${id}`, data, {
+    params: { policyNumber: policyNum },
+  });
+
   return response.data;
 };
 
@@ -73,20 +77,6 @@ export const generateBill = async (patientId: number): Promise<Bill> => {
   return response.data;
 };
 
-// 7. Verify Insurance (Mocked for now)
-export const verifyInsurancePolicy = async (
-  provider: string,
-  policyNumber: string
-): Promise<number> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-
-  // Mock Logic:
-  if (policyNumber.includes("FAIL")) throw new Error("Invalid Policy");
-  if (provider === "Medicare") return 90; // 90% coverage
-  return 80; // Default 80% coverage
-};
-
 // ... existing imports
 
 // NEW: Function to update criticality
@@ -95,6 +85,36 @@ export const updateTriageStatus = async (tagId: number, newColor: string) => {
   const response = await api.patch(`/triage/${tagId}/status`, null, {
     params: { color: newColor },
   });
+  return response.data;
+};
+
+// ... existing functions
+
+// --- INSURANCE & BILLING ---
+
+// 1. Verify Insurance Policy
+export const verifyInsurancePolicy = async (policyNumber: string) => {
+  const response = await api.get(`/insurance/${policyNumber}`);
+  return response.data;
+};
+
+// 2. Get Bill Preview
+export const getBillPreview = async (patientId: number) => {
+  const response = await api.get(`/billing/preview/${patientId}`);
+  return response.data;
+};
+
+// 3. Process Discharge
+export const processDischarge = async (patientId: number) => {
+  const response = await api.post(`/billing/discharge/${patientId}`);
+  return response.data;
+};
+
+// ... existing imports
+
+// NEW: Search Insurance By Name
+export const searchInsuranceByName = async (name: string) => {
+  const response = await api.get(`/insurance/search?name=${name}`);
   return response.data;
 };
 

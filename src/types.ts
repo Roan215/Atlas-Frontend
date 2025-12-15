@@ -8,10 +8,10 @@ export interface Patient {
   gender: string;
   contactNumber: string;
   address: string;
+
+  // These fields are populated from the backend relationship
   insuranceProvider?: string;
   insuranceNumber?: string;
-
-  // ADD THIS LINE:
   insuranceCoverage?: number;
 }
 
@@ -40,6 +40,4 @@ export interface Bill {
   insuranceCoverage: number;
   patientPayable: number;
   status: "PENDING" | "PAID" | "INSURANCE_PENDING";
-  generatedAt: string;
-  dueDate: string;
 }
