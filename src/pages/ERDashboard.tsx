@@ -26,6 +26,7 @@ const ERDashboard: React.FC = () => {
   // Real Data State
   const [hospital, setHospital] = useState<Hospital | null>(null);
   const [triageList, setTriageList] = useState<TriageTag[]>([]);
+  const [currentTime, setCurrentTime] = useState(new Date()); // <--- NEW: Clock State
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,12 +35,12 @@ const ERDashboard: React.FC = () => {
     null
   );
 
-  // --- FIXED: Dark Mode Persistence ---
+  // Dark Mode
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const stored = localStorage.getItem("theme");
     if (stored === "light") return false;
     if (stored === "dark") return true;
-    return true; // Default to dark preference
+    return true;
   });
 
   useEffect(() => {
@@ -51,6 +52,12 @@ const ERDashboard: React.FC = () => {
       localStorage.setItem("theme", "light");
     }
   }, [isDarkMode]);
+
+  // --- CLOCK TICKER ---
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // --- INITIALIZATION ---
   useEffect(() => {
@@ -74,9 +81,23 @@ const ERDashboard: React.FC = () => {
         fetchHospitalById(id),
       ]);
 
-      // --- FIX: SORT BY NEWEST FIRST (LIFO) ---
-      // We compare IDs (assuming higher ID = newer) to put the latest at the top.
-      const sortedTags = tags.sort((a, b) => b.id - a.id);
+      // SORT BY CRITICALITY FIRST, THEN TIME
+      const sortedTags = tags.sort((a, b) => {
+        const priority: Record<string, number> = {
+          RED: 4,
+          YELLOW: 3,
+          GREEN: 2,
+          BLACK: 1,
+        };
+
+        const weightA = priority[a.tagColor] || 0;
+        const weightB = priority[b.tagColor] || 0;
+
+        if (weightA !== weightB) {
+          return weightB - weightA;
+        }
+        return b.id - a.id;
+      });
 
       setTriageList(sortedTags);
       setHospital(hospData);
@@ -101,7 +122,6 @@ const ERDashboard: React.FC = () => {
   const handleStatusUpdate = async (newColor: TriageColor) => {
     if (!selectedPatient) return;
 
-    // 1. Optimistic Update (Update UI instantly so it feels fast)
     setTriageList((prev) =>
       prev.map((item) =>
         item.id === selectedPatient.id ? { ...item, tagColor: newColor } : item
@@ -109,12 +129,8 @@ const ERDashboard: React.FC = () => {
     );
     setIsModalOpen(false);
 
-    // 2. REAL DATABASE UPDATE
     try {
       await updateTriageStatus(selectedPatient.id, newColor);
-      // Optional: Refresh data to ensure sync
-      // const storedId = localStorage.getItem('hospitalId');
-      // if (storedId) refreshAllData(parseInt(storedId));
     } catch (error) {
       console.error("Failed to update status in DB", error);
       alert("Connection Error: Status update might not have saved.");
@@ -205,7 +221,7 @@ const ERDashboard: React.FC = () => {
         isDarkMode ? "dark bg-black" : "bg-gray-50"
       )}
     >
-      {/* NAVBAR: FIXED BORDER COLOR */}
+      {/* NAVBAR */}
       <nav className="border-b border-gray-200 dark:border-neutral-800 bg-white dark:bg-black sticky top-0 z-20 px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <div className="bg-blue-600 p-2 rounded-lg">
@@ -220,19 +236,41 @@ const ERDashboard: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="flex gap-4">
-          <button
-            onClick={() => navigate("/billing")}
-            className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white border border-transparent hover:border-neutral-800 rounded-lg transition-all"
-          >
-            Billing & RCM
-          </button>
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="p-2 rounded-full hover:bg-neutral-800 text-yellow-500"
-          >
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
+
+        <div className="flex items-center gap-6">
+          {/* --- NEW CLOCK --- */}
+          <div className="text-right hidden md:block">
+            <div className="text-sm font-bold text-gray-900 dark:text-white">
+              {currentTime.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </div>
+            <div className="text-xs text-gray-500 font-medium">
+              {currentTime.toLocaleDateString([], {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              })}
+            </div>
+          </div>
+
+          <div className="h-8 w-px bg-gray-200 dark:bg-neutral-800 hidden md:block" />
+
+          <div className="flex gap-4">
+            <button
+              onClick={() => navigate("/billing")}
+              className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white border border-transparent hover:border-neutral-800 rounded-lg transition-all"
+            >
+              Billing & RCM
+            </button>
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 rounded-full hover:bg-neutral-800 text-yellow-500 transition-colors"
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          </div>
         </div>
       </nav>
 

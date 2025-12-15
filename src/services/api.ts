@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Hospital, TriageTag, Patient, Bill } from "../types";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = "/api";
 
 export const api = axios.create({
   baseURL: API_URL,
