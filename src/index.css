@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/* Force Tailwind to use the .dark class selector instead of system preference */
+@variant dark (&:where(.dark, .dark *));
+
+/* Smooth transition for background colors */
+body {
+  @apply transition-colors duration-300;
+}
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    @apply antialiased tracking-tight; /* Makes text look sharper */
+  }
+}
+@media print {
+  /* 1. Hide everything in the body */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 2. Make the Invoice Panel visible */
+  #invoice-panel,
+  #invoice-panel * {
+    visibility: visible;
+  }
+
+  /* 3. Position the invoice to fill the page */
+  #invoice-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background-color: white !important;
+    color: black !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  /* 4. Ensure text is black for printing (overriding dark mode white text) */
+  #invoice-panel h1,
+  #invoice-panel h2,
+  #invoice-panel h3,
+  #invoice-panel p,
+  #invoice-panel span,
+  #invoice-panel td,
+  #invoice-panel th {
+    color: black !important;
+  }
+
+  /* 5. Force background colors for table rows if user settings allow */
+  tr.group:hover {
+    background-color: transparent !important;
+  }
+}
